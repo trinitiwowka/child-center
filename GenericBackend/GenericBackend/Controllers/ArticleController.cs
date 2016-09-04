@@ -71,5 +71,41 @@ namespace GenericBackend.Controllers
             }
         }
 
+        #region TestPart
+
+        public async Task<IHttpActionResult> GetTest()
+        {
+
+            return Ok(await GetAllArticlesTest());
+        }
+
+        private Task<List<Article>> GetAllArticlesTest()
+        {
+            var user = UserModel.GetUserInfo(User);
+            var article1 = new Article
+            {
+                Headline = "Test1",
+                DateOfPost = DateTime.UtcNow,
+                FullText = "Full Text1",
+                Summary = "Summary1"
+            };
+            var article2 = new Article
+            {
+                Headline = "Test2",
+                DateOfPost = DateTime.UtcNow,
+                FullText = "Full Text2",
+                Summary = "Summary2"
+            };
+            var newList = new List<Article>();
+            newList.Add(article1);
+            newList.Add(article2);
+            var query = newList.AsQueryable();
+            if (!user.IsSuperUser)
+                query = _unitOfWork.Articles.Where(x => x.User == user.Name);
+
+            return Task.Factory.StartNew(() => query.ToList());
+        }
+
+        #endregion
     }
 }
